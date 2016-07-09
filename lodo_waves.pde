@@ -1,9 +1,11 @@
 int WIDTH, HEIGHT; //Screen dimensions
-int n_x, n_y;      //Lights in x and y directions
+int n_x, n_y;      //Numbe of lights in x and y directions
 float dt = 1.0;    //time step
 float dx, dy;      //spacing between grid points
 float c = 2.9;     //constant (wave speed)
 float C2;          //Used to speed up calculations
+
+//The variable "u" is typically used for the amplitude of a wave equation
 
 float [][] uPrev;     //Stores values of u from previous time step
 float [][] uCurrent;  //Stores current values of u
@@ -24,6 +26,7 @@ void setup() {
   uCurrent = new float[n_x][n_y];
   uNext = new float[n_x][n_y];
   
+  //Zero the board
   int i, j;
   for (i=0; i<n_x; i++) {
     for (j=0; j<n_y; j++) {
@@ -32,70 +35,9 @@ void setup() {
       uNext[i][j] = 0.0;
     }
   }
-  
-  //setInitialCondition2();
  
   surface.setSize(WIDTH, HEIGHT);
 }
-
-
-//Some initial conditions
-
-void setInitialCondition1() {
-  int i, j;
-  for (i=0; i<n_x; i++) {
-    for (j=0; j<n_y; j++) {
-      uCurrent[i][j] = 200*sin(2*pi*i/(n_x-1));
-    }
-  }
-  for (i=0; i<n_x; i++) {
-    for (j=0; j<n_y; j++) {
-      uCurrent[i][j] += 200*sin(2*pi*j/(n_y-1));
-    }
-  }
-  for (i=1; i<(n_x-1); i++) {
-    for (j=1; j<(n_y-1); j++) {
-      uPrev[i][j] = uCurrent[i][j] + 0.5*C2*( (uCurrent[i-1][j] - 2*uCurrent[i][j] + uCurrent[i+1][j])/(dx*dx) + (uCurrent[i][j-1] - 2*uCurrent[i][j] + uCurrent[i][j+1])/(dy*dy) );
-    }
-  }
-}
-
-void setInitialCondition2() {
-  int i, j;
-  for (i=1; i<(n_x-1); i++) {
-    for (j=1; j<(n_y-1); j++) {
-      uCurrent[i][j] = 5*(n_x-i);
-    }
-  }
-  for (i=1; i<(n_x-1); i++) {
-    for (j=1; j<(n_y-1); j++) {
-      //Backwards wave equation of sorts
-      uPrev[i][j] = uCurrent[i][j] + 0.5*C2*( (uCurrent[i-1][j] - 2*uCurrent[i][j] + uCurrent[i+1][j])/(dx*dx) + (uCurrent[i][j-1] - 2*uCurrent[i][j] + uCurrent[i][j+1])/(dy*dy) );
-    }
-  }
-}
-
-void setInitialCondition3() {
-  int i, j;
-  uCurrent[n_x/2][n_y/2] = 1000;
-  uCurrent[n_x/2-1][n_y/2] = 800;
-  uCurrent[n_x/2+1][n_y/2] = 800;
-  uCurrent[n_x/2][n_y/2+1] = 800;
-  uCurrent[n_x/2][n_y/2-1] = 800;
-  uCurrent[n_x/2+1][n_y/2-1] = 800;
-  uCurrent[n_x/2-1][n_y/2-1] = 800;
-  uCurrent[n_x/2+1][n_y/2+1] = 800;
-  uCurrent[n_x/2-1][n_y/2+1] = 800;
-  for (i=1; i<(n_x-1); i++) {
-    for (j=1; j<(n_y-1); j++) {
-      //Backwards wave equation of sorts
-      uPrev[i][j] = uCurrent[i][j] + 0.5*C2*( (uCurrent[i-1][j] - 2*uCurrent[i][j] + uCurrent[i+1][j])/(dx*dx) + (uCurrent[i][j-1] - 2*uCurrent[i][j] + uCurrent[i][j+1])/(dy*dy) );
-    }
-  }
-}
-
-// End initial conditions
-
 
 float F(int i, int j) {
   //Enternal forces
@@ -143,6 +85,7 @@ void stepWave() {
       uNext[i][j] = C2*(innerDifference1 + innerDifference2) + 2*uCurrent[i][j] - uPrev[i][j] + (dt*dt)*F(i, j)/3;
     }
   }
+  //Copy uCurrent into uPrev, and uNext into uCurrent
   for (i=1; i<(n_x-1); i++) {
     for (j=1; j<(n_y-1); j++) {
       uPrev[i][j] = uCurrent[i][j];
