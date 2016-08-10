@@ -30,11 +30,11 @@ func Run(board *core.Board) {
 	}
 	
 	for {
-		core.PetDog()						// Pet dog or die
+		core.PetDog()								// Pet dog or die
 		board.RefreshSensors()			
-		drawBoard(board, uCurrent)			// Pretty colors
-		stepWave(uPrev, uCurrent, uNext)	// Advance the wave
-		dampen(1.003, uPrev, uNext)			// "Friction"
+		drawBoard(board, uCurrent)					// Pretty colors
+		stepWave(uPrev, uCurrent, uNext)			// Advance the wave
+		dampen(1.003, uPrev, uNext)					// "Friction"
 		
 		if board.CheckAnyDown() { timeout += 60 }	// Extend timeout if there's action
 		if time.Now().After(time.Out) { return }	// Times out after 1 minute
@@ -45,7 +45,6 @@ func Run(board *core.Board) {
 
 
 func drawBoard(board *core.Board, uCurrent [][]float64) {
-	// ***** WORK IN PROGRESS *****
 	// Set the lights to be colorful based on the values of uCurrent
 	var r, g, b int
 	var alpha float64
@@ -59,13 +58,13 @@ func drawBoard(board *core.Board, uCurrent [][]float64) {
 			b = getBlue(uCurrent[x][y])
 			alpha = getAlpha(uCurrent[x][y])
 			
-			color = core.MakeColorAlpha(r, g, b, alpha)
+			color := core.MakeColorAlpha(r, g, b, alpha)
 			board.DrawPixel(x, y, color)
 		}
 	}
 }
 
-func round(a float64) int {
+func round(a float64) int {			// Round a positive float to nearest integer
 	if float64(int(a)) + 0.5 - a < 0 {
 		return int(a) + 1
 	} else {
@@ -73,7 +72,7 @@ func round(a float64) int {
 	}
 }
 
-func getRed(a float64) int {
+func getRed(a float64) int {			// Determine how much red to be used
 	if a > -40 && a < 20 {
 		return 0
 	} else if a < -60 || a > 40 {
@@ -86,7 +85,7 @@ func getRed(a float64) int {
 	return 0
 }
 
- func getGreen(a float64) int {
+ func getGreen(a float64) int {			// Determine how much green to be used
 	if a < -20 || a > 60 {
 		return 0
 	} else if a < 0 {
@@ -97,7 +96,7 @@ func getRed(a float64) int {
 	return 31
 }
 
-func getBlue(a float64) int {
+func getBlue(a float64) int {			// Determine how much blue to be used
 	if a < 0 {
 		return 31
 	} else if a < 20 {
@@ -106,7 +105,7 @@ func getBlue(a float64) int {
 	return 0
 }
 
-func getAlpha(a float64) float64 {
+func getAlpha(a float64) float64 {		// Determine brightness -- waves dim at troughs
 	if a > 0 {
 		return 1.0
 	} else if a > -70 {
@@ -125,7 +124,6 @@ func stepWave(uPrev [][]float64, uCurrent [][]float64, uNext [][]float64) {
 			uNext[i][j] = C2*(innerDifference1 + innerDifference2) + 2*uCurrent[i][j] - uPrev[i][j] + (dt*dt)*force(i, j);
 		}
 	}
-	
 	// Copies uCurrent into uPrev, and uNext into uCurrent
 	for i := 1; i < n_x-1; i++ {
 		for j := 1; j < n_y-1; j++ {
@@ -136,14 +134,13 @@ func stepWave(uPrev [][]float64, uCurrent [][]float64, uNext [][]float64) {
 }
 
 func force(i int,j int) float64 {
-	// ***** WORK IN PROGRESS *****
+	// ***** UNFINISHED *****
 	//Stepping on a square causes a force on the membrane
 	//Not quite sure how to implement fully
 	return - i - j - 3.14
 }
 
-func dampen(amount float64, uPrev [][]float64, uCurrent [][]float64) {
-	//Optionally causes the wave to decay
+func dampen(amount float64, uPrev [][]float64, uCurrent [][]float64) {		//Optionally causes the wave to decay
 	// amount > 1.000 (unless you like crashing your system)
 	for i:=0; i<n_x-1; i++ {
 		for j:=0; j<n_y-1; j++ {
